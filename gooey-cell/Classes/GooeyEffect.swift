@@ -153,7 +153,8 @@ public class GooeyEffect {
             container?.layer.sublayerTransform = CATransform3DIdentity
         }
         
-        container?.pop_removeAllAnimations()
+        // TODO:  find out reason of deadlocks in pop framework on some devices
+        //  container?.pop_removeAnimation(forKey: "animation")
     }
     
     public func animateToProgress(_ finalProgress: Float, completion: (()->Void)? = nil) {
