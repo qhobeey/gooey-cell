@@ -70,12 +70,10 @@ open class GooeyEffectTableViewCell: UITableViewCell {
             
             var progress = Float(gesture.translation(in: contentView).x / effect.effectMaxWidth)
             
-            if progress < 0 && effect.direction == .toRight ||
-                progress > 0 && effect.direction == .toLeft {
-                
-                progress = 0
-            } else {
+            if isProgressInCorrectDirection(progress) {
                 progress = abs(progress)
+            } else {
+                progress = 0
             }
             
             let nonlinearProgressLength: Float = 0.15
@@ -105,10 +103,17 @@ open class GooeyEffectTableViewCell: UITableViewCell {
             guard let effect = effect else { return }
           
             gesture.isEnabled = false
-
-            let progress = abs(Float(gesture.translation(in: contentView).x / effect.effectMaxWidth))
-            let finalEffectProgress: Float = progress < effect.gapProgressValue ? 0 : 1
             
+            let progress = Float(gesture.translation(in: contentView).x / effect.effectMaxWidth)
+
+            let finalEffectProgress: Float
+            
+            if isProgressInCorrectDirection(progress) {
+                finalEffectProgress = abs(progress) < effect.gapProgressValue ? 0 : 1
+            } else {
+                finalEffectProgress = 0
+            }
+
             effect.animateToProgress(finalEffectProgress) { [weak self] in
                 guard let self = self else { return }
                 
@@ -123,6 +128,18 @@ open class GooeyEffectTableViewCell: UITableViewCell {
             
         case .possible:
             break
+        }
+    }
+    
+    private func isProgressInCorrectDirection(_ progress: Float) -> Bool {
+        guard let effect = effect else { return false }
+
+        if progress < 0 && effect.direction == .toRight ||
+            progress > 0 && effect.direction == .toLeft {
+            
+            return false
+        } else {
+            return true
         }
     }
     
